@@ -11,6 +11,8 @@
 
 #include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 
+#include "../Weapons/Gun.h"
+
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
 //////////////////////////////////////////////////////////////////////////
@@ -46,12 +48,12 @@ AFirstPersonCharacter::AFirstPersonCharacter()
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun 
 	// are set in the derived blueprint asset named MyCharacter to avoid direct content references in C++.
 
-	// Create VR Controllers.
-	R_MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("R_MotionController"));
-	R_MotionController->MotionSource = FXRMotionControllerBase::RightHandSourceId;
-	R_MotionController->SetupAttachment(RootComponent);
-	L_MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("L_MotionController"));
-	L_MotionController->SetupAttachment(RootComponent);
+	//// Create VR Controllers.
+	//R_MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("R_MotionController"));
+	//R_MotionController->MotionSource = FXRMotionControllerBase::RightHandSourceId;
+	//R_MotionController->SetupAttachment(RootComponent);
+	//L_MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("L_MotionController"));
+	//L_MotionController->SetupAttachment(RootComponent);
 
 	//// Create a gun and attach it to the right-hand VR controller.
 	//// Create a gun mesh component
@@ -77,7 +79,13 @@ void AFirstPersonCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	////Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
-	//FP_Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+	if (GunBlueprint == NULL)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GunBlueprint Missing!!!"))
+		return;
+	}
+	Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
+	Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
 
 	//// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	//if (bUsingMotionControllers)
